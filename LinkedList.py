@@ -14,8 +14,8 @@ class LinkedList:
             self.head.next_item = new_item
             self.head.prev_item = new_item
         else:
-            last_item = self.head.prev_item
+            last_item = self.head.previous_item
             new_item.next_item = self.head
-            new_item.prev_item = last_item
+            new_item.previous_item = last_item
             last_item.next_item = new_item
             self.head = new_item
