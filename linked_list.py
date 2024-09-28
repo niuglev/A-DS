@@ -41,6 +41,7 @@ class LinkedListItem:
 class LinkedList:
     """Связный список"""
     def __init__(self, first_item=None):
+        self.first_item = first_item
         self.head = first_item
 
     @property
@@ -54,15 +55,15 @@ class LinkedList:
         """Добавление слева"""
         new_item = LinkedListItem(item)
         if self.head is None:
-            self.head = new_item
+            self.head = self.first_item = new_item
             self.head.next_item = new_item
         else:
             last_item = self.head.previous_item
             new_item.next_item = self.head
             new_item.previous_item = last_item
-            last_item.next_item = new_item
+            # last_item.next_item = new_item
             self.head.previous_item = new_item
-            self.head = new_item
+            self.head = self.first_item = new_item
 
     def append_right(self, item):
         """Добавление справа"""
@@ -116,37 +117,27 @@ class LinkedList:
             if current == first_item:
                 raise ValueError(f"Элемент {item} не найден в списке")
 
-    def insert(self, previous_data, item):
-        """Вставка нового элемента после элемента с данными previous_data"""
+    def insert(self, previous, item):
+        """Вставка справа"""
         new_item = LinkedListItem(item)
         current = self.head
 
-        # Если список пуст
-        if current is None:
-            raise ValueError("Список пуст, невозможно выполнить вставку.")
+        if current is None:  # Если список пуст
+            self.head = new_item
+            new_item.next_item = new_item
+            new_item.previous_item = new_item
+            return
 
-        first_item = current
-
-        # Проход по списку в поисках элемента с данными previous_data
-        while True:
-            if current.data == previous_data:
-                next_item = current.next_item  # Узел, который идет после найденного элемента
-
-                # Устанавливаем ссылки для нового элемента
-                new_item.previous_item = current
-                new_item.next_item = next_item
-
-                # Обновляем ссылки для текущего (previous) и следующего узлов
-                current.next_item = new_item
-                next_item.previous_item = new_item
-
-                return
-
+        for _ in range(previous):
             current = current.next_item
+            if current == self.head:  # Индекс вне диапазона
+                raise IndexError("Индекс вне диапазона")
 
-            # Если вернулись к первому узлу, элемент не найден
-            if current == first_item:
-                raise ValueError(f"Элемент с данными {previous_data} не найден в списке.")
+        next_item = current.next_item
+        new_item.previous_item = current
+        new_item.next_item = next_item
+        current.next_item = new_item
+        next_item.previous_item = new_item
 
     def __len__(self):
         if self.head is None:
@@ -179,6 +170,8 @@ class LinkedList:
             raise IndexError("Список пуст")
 
         length = len(self)
+        if index < 0:
+            index = len(self) + index
 
         if index < 0 or index >= length:
             raise IndexError("Индекс вне списка")
@@ -192,25 +185,25 @@ class LinkedList:
             for _ in range(length - index - 1):
                 current = current.previous_item
 
-        return current
+        return current.data
 
     def __contains__(self, item):
-        def __contains__(self, value):
-            """Проверка наличия элемента в списке"""
-            if self.head is None:
-                return False  # Список пуст
+        """Проверка наличия элемента в списке"""
+        if self.head is None:
+            return False  # Список пуст
 
-            current = self.head
-            first_item = current
+        item = LinkedListItem(item)
+        current = self.head
+        first_item = current
 
-            while True:
-                if current.data == value:
-                    return True  # Элемент найден
-                current = current.next_item
-                if current == first_item:
-                    break  # Прошли по всему списку
+        while True:
+            if current.data == item.data:
+                return True  # Элемент найден
+            current = current.next_item
+            if current == first_item:
+                break  # Прошли по всему списку
 
-            return False  # Элемент не найден
+        return False  # Элемент не найден
 
     def __reversed__(self):
         if self.head is None:
